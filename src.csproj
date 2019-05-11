@@ -229,7 +229,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\DownloadController.cs" />
-    <Compile Include="Assets\Scripts\FileDownloader.cs" />
     <Compile Include="Assets\Scripts\PictureLoader.cs" />
     <Compile Include="Assets\Scripts\PicturesViewer.cs" />
   </ItemGroup>

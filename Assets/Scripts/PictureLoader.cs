@@ -1,13 +1,13 @@
-﻿using System;
-using System.Net;
-using UnityEngine;
-using RSG;
-using Assets.Scripts;
+﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
+using RSG;
+using UnityEngine.UI;
 
 public class PictureLoader : MonoBehaviour
 {
     public string picturesDirectory;
+    public Text messageOutput;
 
     public bool LoadPicture(string url)
     {
@@ -15,52 +15,48 @@ public class PictureLoader : MonoBehaviour
         filename = filename.Contains("?") ? filename.Substring(0, filename.IndexOf('?')) : filename;
 
         StartCoroutine(ImportObject(url, filename));
-        
+        //Download(url, filename).Then(res =>messageOutput.text = res);
+
         return true;
     }
 
     IEnumerator ImportObject(string url, string filename)
     {
-
-        WWW www = new WWW(url);
-        yield return www;
-
-        if (!string.IsNullOrEmpty(www.error))
-        {
-            Debug.Log("Download Error");
-        }
-        else
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
             string write_path = picturesDirectory + "\\" + filename;
+            webRequest.downloadHandler = new DownloadHandlerFile(write_path);
+            yield return webRequest.SendWebRequest();
 
-            System.IO.File.WriteAllBytes(write_path, www.bytes);
-
-            Debug.Log("Wrote to path");
+            if (!string.IsNullOrEmpty(webRequest.error))
+            {
+                Debug.Log("Download Error");
+            }
+            else
+            {
+                Debug.Log("Wrote to path");
+            }
         }
-
     }
 
-    //private IPromise<string> Download(string url, string filename)
-    //{
-    //    var promise = new Promise<string>();    // Create promise.
-    //    using (var client = new WebClient())
-    //    {
-    //        client.DownloadStringCompleted +=   // Monitor event for download completed.
-    //            (s, ev) =>
-    //            {
-    //                if (ev.Error != null)
-    //                {
-    //                    promise.Reject(ev.Error);   // Error during download, reject the promise.
-    //            }
-    //                else
-    //                {
-    //                    promise.Resolve(ev.Result); // Downloaded completed successfully, resolve the promise.
-    //                }
-    //            };
+    private IPromise<string> Download(string url, string filename)
+    {
+        var promise = new Promise<string>();    // Create promise.
+        using (var client = UnityWebRequest.Get(url))
+        {
+            string write_path = picturesDirectory + "\\" + filename;
+            client.downloadHandler = new DownloadHandlerFile(write_path);
+            var operation = client.SendWebRequest();
+            operation.completed +=   // Monitor event for download completed.
+                (s) =>
+                {
+                    if (s.isDone)
+                    {
+                        promise.Resolve("Saved");
+                    }
+                };
+        }
 
-    //        client.DownloadStringAsync(new Uri(url), null); // Initiate async op.
-    //    }
-
-    //    return promise; // Return the promise so the caller can await resolution (or error).
-    //}
+        return promise;
+    }
 }
