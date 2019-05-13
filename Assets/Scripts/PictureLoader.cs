@@ -14,13 +14,12 @@ public class PictureLoader : MonoBehaviour
         var filename = url.Substring(url.LastIndexOf('/') + 1);
         filename = filename.Contains("?") ? filename.Substring(0, filename.IndexOf('?')) : filename;
 
-        StartCoroutine(ImportObject(url, filename));
-        //Download(url, filename).Then(res =>messageOutput.text = res);
+        Download(url, filename).Then(res =>messageOutput.text = res);
 
         return true;
     }
 
-    IEnumerator ImportObject(string url, string filename)
+    IEnumerator ImportObject(string url, string filename, Promise<string> promise = null)
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
@@ -30,10 +29,12 @@ public class PictureLoader : MonoBehaviour
 
             if (!string.IsNullOrEmpty(webRequest.error))
             {
+                promise.Reject(new System.Exception(webRequest.error));
                 Debug.Log("Download Error");
             }
             else
             {
+                promise.Resolve("Wrote to path");
                 Debug.Log("Wrote to path");
             }
         }
@@ -41,21 +42,8 @@ public class PictureLoader : MonoBehaviour
 
     private IPromise<string> Download(string url, string filename)
     {
-        var promise = new Promise<string>();    // Create promise.
-        using (var client = UnityWebRequest.Get(url))
-        {
-            string write_path = picturesDirectory + "\\" + filename;
-            client.downloadHandler = new DownloadHandlerFile(write_path);
-            var operation = client.SendWebRequest();
-            operation.completed +=   // Monitor event for download completed.
-                (s) =>
-                {
-                    if (s.isDone)
-                    {
-                        promise.Resolve("Saved");
-                    }
-                };
-        }
+        var promise = new Promise<string>(); 
+        StartCoroutine(ImportObject(url, filename, promise));
 
         return promise;
     }
