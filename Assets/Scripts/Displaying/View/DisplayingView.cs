@@ -16,20 +16,13 @@ class DisplayingView: View
 
     public event Action RefreshButtonPressed;
 
+    private RectTransform contentWrapper;
+
     public void Init()
     {
+        contentWrapper = FindChildWithName(FindChildWithName(scrollView.transform, "Viewport"), "Content").GetComponent<RectTransform>();
         refreshButton.onClick.AddListener(OnClick_RefreshButton);
         homeButton.onClick.AddListener(OnClick_HomeButton);
-    }
-
-    private void OnClick_HomeButton()
-    {
-        gameObject.SetActive(false);
-    }
-
-    private void OnClick_RefreshButton()
-    {
-        RefreshButtonPressed.Invoke();
     }
 
     public void RenderPictures(IEnumerable<Texture2D> textures)
@@ -37,22 +30,21 @@ class DisplayingView: View
         var texturesList = textures.ToList();
         if (!ShowPics(texturesList.Count > 0)) return;
 
-        RectTransform contentWrapper = FindChildWithName(FindChildWithName(scrollView.transform, "Viewport"), "Content").GetComponent<RectTransform>();
         DestroyChildren(contentWrapper);
-
-        var wrapperHeight = 500f + (450f * (texturesList.Count % 2 == 0 ? texturesList.Count / 2 - 1 : texturesList.Count / 2));
-        contentWrapper.sizeDelta = new Vector2(contentWrapper.sizeDelta.x, wrapperHeight);
+        AdjustWrapper(texturesList.Count);
 
         for (int i = 0; i < texturesList.Count; i++)
         {
-            float y = -(250f + 450f * (i / 2));
-            float x = i % 2 == 0 ? -250f : 250f;
-            var pos = new Vector2(x, y);
-
-            var image = Instantiate(imagePrefab, contentWrapper);
-            image.GetComponent<RectTransform>().anchoredPosition = pos;
-            image.GetComponent<Image>().overrideSprite = Sprite.Create(texturesList[i], new Rect(0, 0, texturesList[i].width, texturesList[i].height), new Vector2(0, 0));
+            AddPicture(texturesList[i], GetImagePosition(i));
         }
+    }
+
+    public void RenderPicture(Texture2D texture)
+    {
+        if (texture == null) throw new ArgumentNullException("texture");
+        var havenTexturesCount = contentWrapper.GetComponentsInChildren<Image>().Length;
+        AdjustWrapper(havenTexturesCount + 1);
+        AddPicture(texture, GetImagePosition(havenTexturesCount));
     }
 
     public void ClosePanel()
@@ -62,6 +54,28 @@ class DisplayingView: View
     public void OpenPanel()
     {
         gameObject.SetActive(true);
+    }
+
+    private void AddPicture(Texture2D texture, Vector2 position)
+    {
+        if (texture == null) throw new ArgumentNullException("texture");
+        var image = Instantiate(imagePrefab, contentWrapper);
+        image.GetComponent<RectTransform>().anchoredPosition = position;
+        image.GetComponent<Image>().overrideSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+    }
+
+    private Vector2 GetImagePosition(int imageNumber)
+    {
+        if(imageNumber<0) throw new ArgumentException("Number can't be negative");
+        float y = -(250f + 450f * (imageNumber / 2));
+        float x = imageNumber % 2 == 0 ? -250f : 250f;
+        return new Vector2(x, y);
+    }
+
+    private void AdjustWrapper(int imagesCount)
+    {
+        var wrapperHeight = 500f + (450f * (imagesCount % 2 == 0 ? imagesCount / 2 - 1 : imagesCount / 2));
+        contentWrapper.sizeDelta = new Vector2(contentWrapper.sizeDelta.x, wrapperHeight);
     }
 
     private bool ShowPics(bool isShow)
@@ -87,4 +101,14 @@ class DisplayingView: View
             Destroy(parent.GetChild(i).gameObject);
         }
     }
+    private void OnClick_HomeButton()
+    {
+        gameObject.SetActive(false);
+    }
+
+    private void OnClick_RefreshButton()
+    {
+        RefreshButtonPressed.Invoke();
+    }
+
 }

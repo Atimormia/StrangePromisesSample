@@ -9,7 +9,8 @@ class DisplayPicturesCommand: Command
     public override void Execute()
     {
         Retain();
-        TexturesImportedSignal.Dispatch(importer.ImportTextures(Settings.picturesDirectory));
+        var textures = importer.ImportTextures(Settings.picturesDirectory);
+        TexturesImportedSignal.Dispatch(textures);
         Release();        
     }
 }

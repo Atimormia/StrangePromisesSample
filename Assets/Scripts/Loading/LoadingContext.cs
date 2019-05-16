@@ -19,6 +19,7 @@ class LoadingContext: BaseContext
         //injectionBinder.Bind<IExampleModel>().To<ExampleModel>().ToSingleton();
         injectionBinder.Bind<IPictureLoader>().To<PictureLoaderToFs>().ToSingleton();
 
+
         //View/Mediator binding
         //This Binding instantiates a new ExampleMediator whenever as ExampleView
         //Fires its Awake method. The Mediator communicates to/from the View
@@ -29,7 +30,6 @@ class LoadingContext: BaseContext
 
         //Event/Command binding
         commandBinder.Bind<StartLoadingSignal>().To<LoadPictureCommand>();
-        injectionBinder.Bind<FinishLoadingSignal>().ToSingleton();
 
     }
 }

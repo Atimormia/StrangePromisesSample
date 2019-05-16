@@ -8,7 +8,9 @@ class PictureLoaderToFs : IPictureLoader
 {
     [Inject(ContextKeys.CONTEXT_VIEW)]
     public GameObject contextView { get; set; }
-    public IPromise<string> LoadPicture(string url)
+    [Inject] public ITexturesImporter TexturesImporter { get; set; }
+
+    public IPromise<Texture2D> LoadPicture(string url)
     {
         var filename = url.Substring(url.LastIndexOf('/') + 1);
         filename = filename.Contains("?") ? filename.Substring(0, filename.IndexOf('?')) : filename;
@@ -16,7 +18,8 @@ class PictureLoaderToFs : IPictureLoader
         return Download(url, filename);
     }
 
-    private IEnumerator ImportObject(string url, string filename, Promise<string> promise = null)
+
+    private IEnumerator ImportObject(string url, string filename, Promise<Texture2D> promise = null)
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
@@ -31,15 +34,15 @@ class PictureLoaderToFs : IPictureLoader
             }
             else
             {
-                promise.Resolve("Wrote to path");
+                promise.Resolve(TexturesImporter.LoadTexture(write_path));
                 Debug.Log("Wrote to path");
             }
         }
     }
 
-    private IPromise<string> Download(string url, string filename)
+    private IPromise<Texture2D> Download(string url, string filename)
     {
-        var promise = new Promise<string>();
+        var promise = new Promise<Texture2D>();
         contextView.GetComponent<MonoBehaviour>().StartCoroutine(ImportObject(url, filename, promise));
 
         return promise;

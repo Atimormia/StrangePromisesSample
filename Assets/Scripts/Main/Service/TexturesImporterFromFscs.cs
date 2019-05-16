@@ -17,10 +17,10 @@ class TexturesImporterFromFs : ITexturesImporter
         }
     }
 
-    private Texture2D LoadTexture(string FilePath)
+    public Texture2D LoadTexture(string filePath)
     {
-        var FileData = File.ReadAllBytes(FilePath);
-        var Tex2D = new Texture2D(2, 2);
-        return Tex2D.LoadImage(FileData) ? Tex2D : null;
+        var fileData = File.ReadAllBytes(filePath);
+        var tex2D = new Texture2D(2, 2);
+        return tex2D.LoadImage(fileData) ? tex2D : null;
     }
 }

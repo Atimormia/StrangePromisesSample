@@ -13,8 +13,19 @@ class MainContext: BaseContext
 
     protected override void mapBindings()
     {
-        mediationBinder.Bind<MainView>().To<MainMediator>();
         injectionBinder.Bind<OpenLoadingPanelSignal>().ToSingleton().CrossContext();
         injectionBinder.Bind<OpenDisplayingPanelSignal>().ToSingleton().CrossContext();
+        injectionBinder.Bind<ITexturesImporter>().To<TexturesImporterFromFs>().ToSingleton().CrossContext();
+        injectionBinder.Bind<TexturesImportedSignal>().ToSingleton().CrossContext();
+        injectionBinder.Bind<FinishLoadingSignal>().ToSingleton().CrossContext();
+        mediationBinder.Bind<MainView>().To<MainMediator>();
+        commandBinder.Bind<StartSignal>().To<StartCommand>();
+        commandBinder.Bind<DisplayPicturesSignal>().To<DisplayPicturesCommand>();
+    }
+    public override void Launch()
+    {
+        base.Launch();
+        StartSignal startSignal = injectionBinder.GetInstance<StartSignal>();
+        startSignal.Dispatch();
     }
 }

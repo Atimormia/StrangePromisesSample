@@ -36,19 +36,10 @@ class LoadingMediator: Mediator
         Debug.Log("LoadingPanelOpenedSignal with "+url);
     }
 
-    private void LoadingFinished(string result, bool successed)
+    private void LoadingFinished(Texture2D texture)
     {
+        var result = texture == null ? "Failed" : "Succeed";
         View.OutputMessage(result);
-        if (successed)
-        {
-            Wait(5);
-            View.ClosePanel();
-        }
     }
-    private void Wait(int seconds)
-    {
-        DateTime ts = DateTime.Now + TimeSpan.FromSeconds(seconds);
 
-        do { } while (DateTime.Now < ts);
-    }
 }

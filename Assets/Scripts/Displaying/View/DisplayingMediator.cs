@@ -7,13 +7,14 @@ class DisplayingMediator: Mediator
     [Inject]
     public DisplayingView view { get; set; }
     [Inject]
-    public DisplayPicturesSignal LoadTexturesSignal { get; set; }
+    public DisplayPicturesSignal DisplayPicturesSignal { get; set; }
     [Inject]
     public TexturesImportedSignal TexturesImportedSignal { get; set; }
     [Inject]
     public OpenDisplayingPanelSignal OpenDisplayingPanelSignal { get; set; }
     [Inject]
     public OpenLoadingPanelSignal OpenLoadingPanelSignal { get; set; }
+    [Inject] public FinishLoadingSignal FinishLoadingSignal { get; set; }
 
     public override void OnRegister()
     {
@@ -22,7 +23,7 @@ class DisplayingMediator: Mediator
         view.downloadButton.onClick.AddListener(OnDownloadButtonPressed);
         TexturesImportedSignal.AddListener(view.RenderPictures);
         OpenDisplayingPanelSignal.AddListener(view.OpenPanel);
-        OpenDisplayingPanelSignal.AddListener(OnRefreshButtonPressed);
+        FinishLoadingSignal.AddListener(view.RenderPicture);
     }
     public override void OnRemove()
     {
@@ -30,14 +31,14 @@ class DisplayingMediator: Mediator
         view.downloadButton.onClick.RemoveListener(OnDownloadButtonPressed);
         TexturesImportedSignal.RemoveListener(view.RenderPictures);
         OpenDisplayingPanelSignal.RemoveListener(view.OpenPanel);
-        OpenDisplayingPanelSignal.RemoveListener(OnRefreshButtonPressed);
+        FinishLoadingSignal.RemoveListener(view.RenderPicture);
     }
+    
     private void OnRefreshButtonPressed()
     {
-        LoadTexturesSignal.Dispatch();// initiates DisplayPicturesCommand though context
-        Debug.Log("LoadTexturesSignal");
-    }
-
+        DisplayPicturesSignal.Dispatch();// initiates DisplayPicturesCommand though context
+        Debug.Log("DisplayPicturesSignal");
+    } 
     private void OnDownloadButtonPressed()
     {
         view.ClosePanel();

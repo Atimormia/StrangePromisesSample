@@ -1,6 +1,7 @@
 ﻿using RSG;
+using UnityEngine;
 
 interface IPictureLoader
 {
-    IPromise<string> LoadPicture(string url);
+    IPromise<Texture2D> LoadPicture(string url);
 }

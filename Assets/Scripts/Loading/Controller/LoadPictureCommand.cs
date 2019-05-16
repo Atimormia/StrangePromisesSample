@@ -15,12 +15,12 @@ class LoadPictureCommand: Command
     public override void Execute()
     {
         Retain();
-        loader.LoadPicture(url).Then(x => OutputResult(x, true)).Catch(x => OutputResult(x.Message, false));
+        loader.LoadPicture(url).Then(x => OutputResult(x)).Catch(x => OutputResult(null));
     }
 
-    private void OutputResult(string result, bool successed)
+    private void OutputResult(Texture2D texture)
     {
-        finishLoadingSignal.Dispatch(result, successed);
+        finishLoadingSignal.Dispatch(texture);
         Release();
     }
 }

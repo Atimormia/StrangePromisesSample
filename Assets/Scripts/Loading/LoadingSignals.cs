@@ -1,7 +1,6 @@
 ﻿using strange.extensions.signal.impl;
+using UnityEngine;
 
-public class OpenLoadingPanelSignal : Signal { }
-public class CloseLoadingPanelSignal : Signal { }
 public class StartLoadingSignal : Signal<string> {}
 
-public class FinishLoadingSignal : Signal<string, bool> { }
+public class FinishLoadingSignal : Signal<Texture2D> { }
